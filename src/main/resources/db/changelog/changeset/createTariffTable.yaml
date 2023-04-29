@@ -1,0 +1,54 @@
+databaseChangeLog:
+  - changeSet:
+      id: createTariffTable
+      author: Mikhail
+      changes:
+        - createTable:
+            tableName: tariff
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: interest_rate
+                  type: varchar(255)
+                  constraints:
+                    nullable:
+                      false
+        - insert:
+            tableName: tariff
+            columns:
+              - column:
+                  name: type
+                  value: 'Тариф 1'
+              - column:
+                  name: interest_rate
+                  value: '0.05'
+        - insert:
+            tableName: tariff
+            columns:
+              - column:
+                  name: type
+                  value: 'Тариф 2'
+              - column:
+                  name: interest_rate
+                  value: '0.1'
+        - insert:
+            tableName: tariff
+            columns:
+              - column:
+                  name: type
+                  value: 'Тариф 3'
+              - column:
+                  name: interest_rate
+                  value: '0.15'
