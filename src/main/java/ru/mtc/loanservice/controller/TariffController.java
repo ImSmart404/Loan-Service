@@ -55,14 +55,7 @@ public class TariffController {
         Long userId = requestMap.get("userId");
         HashMap<String, Object> response = new HashMap<>();
         HashMap<String, String> dataMap = new HashMap<>();
-        try{
-            Tariff tariff = tariffRepository.findById(tariffId);
-        } catch (EmptyResultDataAccessException ex){
-            dataMap.put("code", "TARIFF_NOT_FOUND");
-            dataMap.put("message", "Тариф не найден");
-            response.put("data", dataMap);
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        }
+        tariffRepository.findById(tariffId);
         List<LoanOrder> loanOrders = loanOrderRepository.findByUserId(userId);
         for (LoanOrder order : loanOrders) {
             if (order.getTariff().getId() == tariffId) {
@@ -93,7 +86,16 @@ public class TariffController {
         response.put("data", dataMap);
         return  ResponseEntity.ok(response);
     }
-//58ee13fa-6d52-4322-8416-582ecdd947b0
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public ResponseEntity<Object> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex) {
+        Map<String, Object> errorMap = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
+        errorMap.put("code", "TARIFF_NOT_FOUND");
+        errorMap.put("message", "Тариф не найден");
+        response.put("data", errorMap);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
     @DeleteMapping("/deleteOrder")
     public ResponseEntity<HashMap<String,Object>> deleteOrder(@RequestBody Map<String, Object> request) {
         Long userId = ((Number) request.get("userId")).longValue();
