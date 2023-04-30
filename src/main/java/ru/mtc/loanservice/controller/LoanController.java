@@ -1,12 +1,13 @@
 package ru.mtc.loanservice.controller;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.mtc.loanservice.model.LoanOrder;
 import ru.mtc.loanservice.model.Tariff;
-import ru.mtc.loanservice.repository.LoanOrderRepository;
 import ru.mtc.loanservice.service.LoanOrderService;
 import ru.mtc.loanservice.service.TariffService;
 
@@ -16,17 +17,14 @@ import java.util.*;
 
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/loan-service")
-public class TariffController {
+public class LoanController {
 
     private final TariffService tariffService;
+
     private final LoanOrderService loanOrderService;
 
-
-    public TariffController(TariffService tariffService, LoanOrderService loanOrderService) {
-        this.tariffService = tariffService;
-        this.loanOrderService = loanOrderService;
-    }
 
     @GetMapping("/getTariffs")
     public ResponseEntity<HashMap<String, Object>> getTariffs() {
@@ -59,7 +57,6 @@ public class TariffController {
         HashMap<String, String> dataMap = new HashMap<>();
         tariffService.findById(tariffId);
         List<LoanOrder> loanOrders = loanOrderService.findByUserId(userId);
-        System.out.println(loanOrders);
             for (LoanOrder order : loanOrders) {
                 if (order.getTariff().getId() == tariffId) {
                     switch (order.getStatus()) {
