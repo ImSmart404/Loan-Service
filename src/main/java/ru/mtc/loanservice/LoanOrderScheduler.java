@@ -28,7 +28,7 @@ public class LoanOrderScheduler {
                 order.setStatus("REFUSED");
             }
             order.setTimeUpdate(Timestamp.valueOf(LocalDateTime.now()));
-            loanOrderRepository.save(order);
+            loanOrderRepository.update(order);
         }
     }
 }
