@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.mtc.loanservice.model.LoanOrder;
 import ru.mtc.loanservice.model.Tariff;
 import ru.mtc.loanservice.repository.LoanOrderRepository;
-import ru.mtc.loanservice.repository.TariffRepository;
+import ru.mtc.loanservice.service.LoanOrderService;
+import ru.mtc.loanservice.service.TariffService;
 
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -18,24 +18,26 @@ import java.util.*;
 @RestController
 @RequestMapping("/loan-service")
 public class TariffController {
-    private final TariffRepository tariffRepository;
-    private final LoanOrderRepository loanOrderRepository;
 
-    public TariffController(TariffRepository tariffRepository, LoanOrderRepository loanOrderRepository) {
-        this.tariffRepository = tariffRepository;
-        this.loanOrderRepository = loanOrderRepository;
+    private final TariffService tariffService;
+    private final LoanOrderService loanOrderService;
+
+
+    public TariffController(TariffService tariffService, LoanOrderService loanOrderService) {
+        this.tariffService = tariffService;
+        this.loanOrderService = loanOrderService;
     }
 
     @GetMapping("/getTariffs")
     public ResponseEntity<HashMap<String, Object>> getTariffs() {
-        List<Tariff> tariffs = tariffRepository.findAll();
+        List<Tariff> tariffs = tariffService.findAll();
         HashMap<String, Object> response = new HashMap<>();
         response.put("data", Collections.singletonMap("tariffs", tariffs));
         return ResponseEntity.ok(response);
     }
     @GetMapping("/getStatusOrder")
     public ResponseEntity<HashMap<String, Object>> getTariffs(@RequestParam String orderId) {
-        Optional<LoanOrder> loanOrder = loanOrderRepository.findByOrderId(orderId);
+        Optional<LoanOrder> loanOrder = loanOrderService.findByOrderId(orderId);
         HashMap<String, Object> response = new HashMap<>();
         if (loanOrder.isEmpty()){
             HashMap<String, Object> errorMap = new HashMap<>();
@@ -55,36 +57,36 @@ public class TariffController {
         Long userId = requestMap.get("userId");
         HashMap<String, Object> response = new HashMap<>();
         HashMap<String, String> dataMap = new HashMap<>();
-        tariffRepository.findById(tariffId);
-        List<LoanOrder> loanOrders = loanOrderRepository.findByUserId(userId);
-        for (LoanOrder order : loanOrders) {
-            if (order.getTariff().getId() == tariffId) {
-                switch (order.getStatus()) {
-                    case "IN_PROGRESS":
-                        dataMap.put("code", "LOAN_CONSIDERATION");
-                        dataMap.put("message", "Тариф в процессе рассмотрения");
-                        response.put("data", dataMap);
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-                    case "APPROVED":
-                        dataMap.put("code", "LOAN_ALREADY_APPROVED");
-                        dataMap.put("message", "Тариф уже одобрен");
-                        response.put("data", dataMap);
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-                    case "REFUSED": {
-                        if (Duration.between(order.getTimeUpdate().toLocalDateTime(), LocalDateTime.now()).toMinutes() < 2){
-                            dataMap.put("code", "TRY_LATER");
-                            dataMap.put("message", "Попробуйте оставить заявку позже");
+        tariffService.findById(tariffId);
+        List<LoanOrder> loanOrders = loanOrderService.findByUserId(userId);
+        System.out.println(loanOrders);
+            for (LoanOrder order : loanOrders) {
+                if (order.getTariff().getId() == tariffId) {
+                    switch (order.getStatus()) {
+                        case "IN_PROGRESS":
+                            dataMap.put("code", "LOAN_CONSIDERATION");
+                            dataMap.put("message", "Тариф в процессе рассмотрения");
                             response.put("data", dataMap);
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+                        case "APPROVED":
+                            dataMap.put("code", "LOAN_ALREADY_APPROVED");
+                            dataMap.put("message", "Тариф уже одобрен");
+                            response.put("data", dataMap);
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+                        case "REFUSED": {
+                            if (Duration.between(order.getTimeUpdate().toLocalDateTime(), LocalDateTime.now()).toMinutes() < 2){
+                                dataMap.put("code", "TRY_LATER");
+                                dataMap.put("message", "Попробуйте оставить заявку позже");
+                                response.put("data", dataMap);
+                                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+                            }
                         }
-
                     }
                 }
             }
-        }
-        dataMap.put("orderId", createNewLoanOrder(userId,tariffId));
-        response.put("data", dataMap);
-        return  ResponseEntity.ok(response);
+            dataMap.put("orderId", loanOrderService.save(userId, tariffId));
+            response.put("data", dataMap);
+            return ResponseEntity.ok(response);
     }
 
     @ExceptionHandler(EmptyResultDataAccessException.class)
@@ -102,7 +104,7 @@ public class TariffController {
         String orderId = request.get("orderId").toString();
         System.out.println(userId);
         System.out.println(orderId);
-        Optional<LoanOrder> loanOrder = loanOrderRepository.findByUserIdAndOrderId((userId), orderId);
+        Optional<LoanOrder> loanOrder = loanOrderService.findByUserIdAndOrderId((userId), orderId);
         HashMap<String, Object> response = new HashMap<>();
         if (loanOrder.isEmpty()) {
             HashMap<String, Object> errorMap = new HashMap<>();
@@ -113,7 +115,7 @@ public class TariffController {
         } else {
             LoanOrder order = loanOrder.get();
             if (order.getStatus() == "IN_PROGRESS") {
-                loanOrderRepository.delete(order);
+                loanOrderService.delete(order);
                 return  ResponseEntity.status(HttpStatus.OK).body(null);
             } else {
                 HashMap<String, Object> errorMap = new HashMap<>();
@@ -123,17 +125,5 @@ public class TariffController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
         }
-    }
-    private String createNewLoanOrder(Long userId, Long tariffId) {
-        LoanOrder newOrder = new LoanOrder();
-        newOrder.setOrderId(String.valueOf(UUID.randomUUID()));
-        newOrder.setUserId(userId);
-        newOrder.setTariff(tariffRepository.findById(tariffId));
-        newOrder.setCreditRating(Math.round((Math.random() * 0.8 + 0.1) * 100.0) / 100.0);
-        newOrder.setStatus("IN_PROGRESS");
-        newOrder.setTimeUpdate(Timestamp.valueOf(LocalDateTime.now()));
-        newOrder.setTimeInsert(Timestamp.valueOf(LocalDateTime.now()));
-        loanOrderRepository.save(newOrder);
-        return newOrder.getOrderId();
     }
 }
