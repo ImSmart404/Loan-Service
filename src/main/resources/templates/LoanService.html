@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>My Spring Service Interface</title>
+</head>
+<body>
+    <h2>Get Tariffs</h2>
+        <button onclick="getTariffs()">Get Tariffs</button>
+        <div id="tariffs">
+        </div>
+    <hr>
+        <h2>Get Order Status</h2>
+            <label for="orderId">Order ID:</label>
+            <input type="text" id="orderId" name="orderId"><br><br>
+            <button onclick="getOrderStatus()">Get Order Status</button>
+            <div id="orderStatus"></div>
+    <hr>
+        <h2>Post Order</h2>
+            <label for="userId">User ID:</label>
+            <input type="long" id="userId" name="userId"><br><br>
+            <label for="tariffId">Tariff ID:</label>
+            <input type="text" id="tariffId" name="tariffId"><br><br>
+            <button onclick="postOrder()">Post Order</button>
+            <div id="postOrder"></div>
+    <hr>
+        <h2>Delete Order</h2>
+        <label for="deleteUserId">User ID:</label>
+        <input type="text" id="deleteUserId" name="deleteUserId"><br><br>
+        <label for="deleteOrderId">Order ID:</label>
+        <input type="text" id="deleteOrderId" name="deleteOrderId"><br><br>
+        <button onclick="deleteOrder()">Delete Order</button>
+    <div id="deleteOrder"></div>
+    <hr>
+<script>
+    function getTariffs() {
+        fetch("/loan-service/getTariffs")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("tariffs").innerHTML = JSON.stringify(data);
+            })
+    }
+
+    function getOrderStatus() {
+        const orderId = document.getElementById("orderId").value;
+        fetch(`/loan-service/getStatusOrder?orderId=${orderId}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("orderStatus").innerHTML = JSON.stringify(data);
+            })
+    }
+
+    function postOrder() {
+        const userId = document.getElementById("userId").value;
+        const tariffId = document.getElementById("tariffId").value;
+        fetch("/loan-service/order", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                userId: userId,
+                tariffId: tariffId
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("postOrder").innerHTML = JSON.stringify(data);
+            })
+    }
+
+    function deleteOrder() {
+        const userId = document.getElementById("deleteUserId").value;
+        const orderId = document.getElementById("deleteOrderId").value;
+        fetch("/loan-service/deleteOrder", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                userId: userId,
+                orderId: orderId
+            })
+        })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById("deleteOrder").innerHTML = "Order Deleted Successfully";
+                } else {
+                    response.json()
+                        .then(data => {
+                            document.getElementById("deleteOrder").innerHTML = JSON.stringify(data);
+                        })
+                }
+            })
+    }
+</script>
+</body>
+</html>

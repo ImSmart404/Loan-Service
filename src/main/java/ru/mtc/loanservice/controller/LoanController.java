@@ -1,10 +1,10 @@
 package ru.mtc.loanservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ru.mtc.loanservice.model.LoanOrder;
 import ru.mtc.loanservice.model.Tariff;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 @RequestMapping("/loan-service")
 public class LoanController {
@@ -95,12 +95,20 @@ public class LoanController {
         response.put("data", errorMap);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleException(Exception ex) {
+        Map<String, Object> errorMap = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
+        errorMap.put("code", "SERVER_ERROR");
+        errorMap.put("message", "Произошла непредвиденная ошибка на сервере");
+        errorMap.put("error", ex.getMessage());
+        response.put("data", errorMap);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
     @DeleteMapping("/deleteOrder")
     public ResponseEntity<HashMap<String,Object>> deleteOrder(@RequestBody Map<String, Object> request) {
-        Long userId = ((Number) request.get("userId")).longValue();
+        Long userId = Long.parseLong( request.get("userId").toString());
         String orderId = request.get("orderId").toString();
-        System.out.println(userId);
-        System.out.println(orderId);
         Optional<LoanOrder> loanOrder = loanOrderService.findByUserIdAndOrderId((userId), orderId);
         HashMap<String, Object> response = new HashMap<>();
         if (loanOrder.isEmpty()) {
@@ -122,5 +130,10 @@ public class LoanController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
         }
+    }
+
+    @GetMapping
+    public String getPage(){
+        return "LoanService";
     }
 }

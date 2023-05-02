@@ -1,24 +1,17 @@
 package ru.mtc.loanservice.repository;
 
-
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.mtc.loanservice.model.LoanOrder;
 import ru.mtc.loanservice.model.Tariff;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 @AllArgsConstructor
 public class LoanOrderRepository  {
-
-
     private JdbcTemplate jdbcTemplate;
     public List<LoanOrder> findByUserId(Long userId){
         String sql = "SELECT loan_order.*, tariff.type, tariff.interest_rate " +
@@ -42,6 +35,7 @@ public class LoanOrderRepository  {
                 "FROM loan_order " +
                 "JOIN tariff ON loan_order.tariff_id = tariff.id " +
                 "WHERE user_id = ? AND order_id = ?";
+        try {
         LoanOrder loanOrder = jdbcTemplate.queryForObject(sql, new Object[]{userId, orderId}, (rs, rowNum) -> new LoanOrder(
                 rs.getLong("id"),
                 rs.getString("order_id"),
@@ -52,24 +46,31 @@ public class LoanOrderRepository  {
                 rs.getTimestamp("time_insert"),
                 rs.getTimestamp("time_update")
         ));
-        return Optional.of(loanOrder);
+            return Optional.of(loanOrder);
+        } catch (EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
     }
     public Optional<LoanOrder> findByOrderId(String orderId) {
         String sql = "SELECT loan_order.*, tariff.type, tariff.interest_rate " +
                 "FROM loan_order " +
                 "JOIN tariff ON loan_order.tariff_id = tariff.id " +
                 "WHERE order_id = ?";
-        LoanOrder loanOrder = jdbcTemplate.queryForObject(sql, new Object[]{orderId}, (rs, rowNum) -> new LoanOrder(
-                rs.getLong("id"),
-                rs.getString("order_id"),
-                rs.getLong("user_id"),
-                new Tariff(rs.getLong("tariff_id"), rs.getString("type"), rs.getString("interest_rate")),
-                rs.getDouble("credit_rating"),
-                rs.getString("status"),
-                rs.getTimestamp("time_insert"),
-                rs.getTimestamp("time_update")
-        ));
-        return Optional.of(loanOrder);
+        try {
+            LoanOrder loanOrder = jdbcTemplate.queryForObject(sql, new Object[]{orderId}, (rs, rowNum) -> new LoanOrder(
+                    rs.getLong("id"),
+                    rs.getString("order_id"),
+                    rs.getLong("user_id"),
+                    new Tariff(rs.getLong("tariff_id"), rs.getString("type"), rs.getString("interest_rate")),
+                    rs.getDouble("credit_rating"),
+                    rs.getString("status"),
+                    rs.getTimestamp("time_insert"),
+                    rs.getTimestamp("time_update")
+            ));
+            return Optional.of(loanOrder);
+        } catch (EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
     }
     public List<LoanOrder> findByStatus(String status) {
         String sql = "SELECT loan_order.*, tariff.type, tariff.interest_rate " +
