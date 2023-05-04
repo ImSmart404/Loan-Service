@@ -1,6 +1,5 @@
 package ru.mtc.loanservice.service;
 
-import org.springframework.stereotype.Service;
 import ru.mtc.loanservice.model.LoanOrder;
 
 import java.util.List;

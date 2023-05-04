@@ -5,10 +5,12 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.client.ConditionalOnReactiveDiscoveryEnabled;
 
 @Data
 @Entity
 @AllArgsConstructor
+@RequiredArgsConstructor
 @Table(name = "tariff")
 public class Tariff {
     @Id

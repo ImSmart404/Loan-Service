@@ -86,10 +86,10 @@ public class LoanControllerUnitTests {
         ObjectMapper objectMapper = new ObjectMapper();
         HashMap<String, Object> response = objectMapper.readValue(content, new TypeReference<HashMap<String, Object>>(){});
 
-        HashMap<String,Object> okMap = new HashMap<>();
-        okMap.put("data", Collections.singletonMap("orderStatus", "IN_PROGRESS"));
+        HashMap<String,Object> expectedResponse = new HashMap<>();
+        expectedResponse.put("data", Collections.singletonMap("orderStatus", "IN_PROGRESS"));
 
-        assert (response.equals(okMap));
+        assert (response.equals(expectedResponse));
     }
 
    @Test

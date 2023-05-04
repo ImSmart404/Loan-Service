@@ -1,15 +1,11 @@
 package ru.mtc.loanservice.service.impl;
 
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import ru.mtc.loanservice.model.LoanOrder;
 import ru.mtc.loanservice.repository.LoanOrderRepository;
 import ru.mtc.loanservice.repository.TariffRepository;
 import ru.mtc.loanservice.service.LoanOrderService;
-import ru.mtc.loanservice.service.TariffService;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
