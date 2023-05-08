@@ -1,16 +1,16 @@
 package ru.mts.loanservice.service;
 
+import org.springframework.http.ResponseEntity;
 import ru.mts.loanservice.model.LoanOrder;
 
 import java.util.List;
-import java.util.Optional;
 
 
 public interface LoanOrderService {
 
-    List<LoanOrder> findByUserId(Long userId);
-    Optional<LoanOrder> findByUserIdAndOrderId(Long userId, String orderId);
-    Optional<LoanOrder>  findByOrderId(String orderId);
+    ResponseEntity<Object> findByUserId(Long userId, Long tariffId);
+    ResponseEntity<Object> findByUserIdAndOrderId(Long userId, String orderId);
+    ResponseEntity<Object> findByOrderId(String orderId);
 
     List<LoanOrder> findByStatus(String status);
 

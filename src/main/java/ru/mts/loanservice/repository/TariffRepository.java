@@ -23,11 +23,10 @@ public class TariffRepository {
     }
     public Tariff findById(Long id){
         String sql = "SELECT * FROM tariff WHERE id = ?";
-            return (jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) -> new Tariff(
+            return  (jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) -> new Tariff(
                     rs.getLong("id"),
                     rs.getString("type"),
                     rs.getString("interest_rate")
             )));
-
     }
 }

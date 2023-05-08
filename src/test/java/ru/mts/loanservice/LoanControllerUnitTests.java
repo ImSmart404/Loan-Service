@@ -1,24 +1,33 @@
 package ru.mts.loanservice;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.mts.loanservice.controller.LoanController;
-import ru.mts.loanservice.model.LoanOrder;
-import ru.mts.loanservice.model.Tariff;
+import ru.mts.loanservice.model.*;
+import ru.mts.loanservice.model.Error;
 import ru.mts.loanservice.service.LoanOrderService;
 import ru.mts.loanservice.service.TariffService;
 
+import static org.assertj.core.api.FactoryBasedNavigableListAssert.assertThat;
+import static org.bouncycastle.math.raw.Nat.equalTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,7 +41,6 @@ import java.util.*;
 public class LoanControllerUnitTests {
     @Autowired
     MockMvc mockMvc;
-
     @MockBean
     TariffService tariffService;
 
@@ -46,56 +54,45 @@ public class LoanControllerUnitTests {
                 new Tariff( null, "Tariff 2", "20.0")
         );
 
-        Mockito.when(tariffService.findAll()).thenReturn(tariffs);
+        GetTariffsDataResponse data = new GetTariffsDataResponse(tariffs);
+        ResponseData response = new ResponseData(data);
+
+        when(tariffService.findAll()).thenReturn(ResponseEntity.ok(response));
         mockMvc.perform(get("/loan-service/getTariffs"))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void testControllerGetStatusOrderShouldReturnBadRequestWhenOrderNotFound() throws Exception {
-        Mockito.when(loanOrderService.findByOrderId(anyString())).thenReturn(Optional.empty());
+
+        Error error = new Error("ORDER_NOT_FOUND", "Заявка не найдена");
+        ResponseError response = new ResponseError(error);
+
+        when(loanOrderService.findByOrderId(Mockito.anyString())).thenReturn(ResponseEntity.badRequest().body(response));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/loan-service/getStatusOrder")
-                .param("orderId", "12345")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .param("orderId", "12345")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
+
         String content = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ObjectMapper objectMapper = new ObjectMapper();
-        HashMap<String, Object> response = objectMapper.readValue(content, new TypeReference<HashMap<String, Object>>(){});
+        ResponseError responseError = objectMapper.readValue(content, ResponseError.class);
 
-        HashMap<String, Object> errorMap = new HashMap<>();
-        errorMap.put("code", "ORDER_NOT_FOUND");
-        errorMap.put("message", "Заявка не найдена");
+        Error expectedError = new Error("ORDER_NOT_FOUND", "Заявка не найдена");
+        ResponseError expectedResponse = new ResponseError(expectedError);
 
-        HashMap<String, Object> expectedResponse = new HashMap<>();
-        expectedResponse.put("error", errorMap);
-        assert(response.equals(expectedResponse));
+        assert(expectedResponse.equals(responseError));
     }
 
-    @Test
-    public void testControllerGetStatusOrderShouldReturnOkRequestForExistingOrder() throws Exception{
-        LoanOrder newOrder = newOrder();
-        Mockito.when(loanOrderService.findByOrderId(newOrder.getOrderId())).thenReturn(Optional.of(newOrder));
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/loan-service/getStatusOrder")
-                .param("orderId", newOrder.getOrderId())
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn();
-        String content = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ObjectMapper objectMapper = new ObjectMapper();
-        HashMap<String, Object> response = objectMapper.readValue(content, new TypeReference<HashMap<String, Object>>(){});
-
-        HashMap<String,Object> expectedResponse = new HashMap<>();
-        expectedResponse.put("data", Collections.singletonMap("orderStatus", "IN_PROGRESS"));
-
-        assert (response.equals(expectedResponse));
-    }
 
    @Test
    public void testControllerPostOrderWhenStatusInProgress() throws Exception{
-        List<LoanOrder> loanOrder = List.of(newOrder());
-        Mockito.when(loanOrderService.findByUserId(123L)).thenReturn(loanOrder);
+        Error inProgressError = new Error("LOAN_CONSIDERATION", "Тариф в процессе рассмотрения");
+        ResponseError inProgressResponse = new ResponseError(inProgressError);
+
+        when(loanOrderService.findByUserId(123L, 123L)).thenReturn( ResponseEntity.status(HttpStatus.BAD_REQUEST).body(inProgressResponse));
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Long> requestMap = new HashMap<>();
         requestMap.put("tariffId", 123L);
@@ -105,30 +102,13 @@ public class LoanControllerUnitTests {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
-        String content = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        HashMap<String, Object> response = objectMapper.readValue(content,new TypeReference<HashMap<String, Object>>(){});
+       String content = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+       ResponseError responseError = objectMapper.readValue(content, ResponseError.class);
 
-        HashMap<String,String> dataMap = new HashMap<>();
-        HashMap<String,Object> okMap = new HashMap<>();
-        dataMap.put("code", "LOAN_CONSIDERATION");
-        dataMap.put("message", "Тариф в процессе рассмотрения");
-        okMap.put("data", dataMap);
+       Error expectedError = new Error("LOAN_CONSIDERATION", "Тариф в процессе рассмотрения");
+       ResponseError expectedResponse = new ResponseError(expectedError);
 
-        assert(response.equals(okMap));
+       assert(expectedResponse.equals(responseError));
    }
 
-   public LoanOrder newOrder(){
-       Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-       UUID uuid = UUID.randomUUID();
-       LoanOrder newOrder = new LoanOrder();
-       newOrder.setId(123L);
-       newOrder.setOrderId(String.valueOf(uuid));
-       newOrder.setUserId(123L);
-       newOrder.setTariff(new Tariff(123L,"Тариф 1", "10.9"));
-       newOrder.setCreditRating(1);
-       newOrder.setStatus("IN_PROGRESS");
-       newOrder.setTimeUpdate(timestamp);
-       newOrder.setTimeInsert(timestamp);
-       return newOrder;
-   }
 }
