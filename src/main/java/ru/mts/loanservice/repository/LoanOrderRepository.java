@@ -1,11 +1,11 @@
-package ru.mtc.loanservice.repository;
+package ru.mts.loanservice.repository;
 
 import lombok.AllArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.mtc.loanservice.model.LoanOrder;
-import ru.mtc.loanservice.model.Tariff;
+import ru.mts.loanservice.model.LoanOrder;
+import ru.mts.loanservice.model.Tariff;
 import java.util.List;
 import java.util.Optional;
 

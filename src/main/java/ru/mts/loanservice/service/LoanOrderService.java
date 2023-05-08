@@ -1,6 +1,6 @@
-package ru.mtc.loanservice.service;
+package ru.mts.loanservice.service;
 
-import ru.mtc.loanservice.model.LoanOrder;
+import ru.mts.loanservice.model.LoanOrder;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,5 +16,5 @@ public interface LoanOrderService {
 
     void delete(LoanOrder order);
 
-    String save(Long userId, Long tariffId);
+    LoanOrder save(Long userId, Long tariffId);
 }

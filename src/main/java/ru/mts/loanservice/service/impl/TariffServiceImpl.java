@@ -1,10 +1,10 @@
-package ru.mtc.loanservice.service.impl;
+package ru.mts.loanservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.mtc.loanservice.model.Tariff;
-import ru.mtc.loanservice.repository.TariffRepository;
-import ru.mtc.loanservice.service.TariffService;
+import ru.mts.loanservice.model.Tariff;
+import ru.mts.loanservice.repository.TariffRepository;
+import ru.mts.loanservice.service.TariffService;
 
 import java.util.List;
 @RequiredArgsConstructor

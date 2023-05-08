@@ -1,4 +1,4 @@
-package ru.mtc.loanservice;
+package ru.mts.loanservice;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,11 +12,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import ru.mtc.loanservice.controller.LoanController;
-import ru.mtc.loanservice.model.LoanOrder;
-import ru.mtc.loanservice.model.Tariff;
-import ru.mtc.loanservice.service.LoanOrderService;
-import ru.mtc.loanservice.service.TariffService;
+import ru.mts.loanservice.controller.LoanController;
+import ru.mts.loanservice.model.LoanOrder;
+import ru.mts.loanservice.model.Tariff;
+import ru.mts.loanservice.service.LoanOrderService;
+import ru.mts.loanservice.service.TariffService;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;

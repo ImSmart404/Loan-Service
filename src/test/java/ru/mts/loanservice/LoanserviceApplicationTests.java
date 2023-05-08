@@ -1,4 +1,4 @@
-package ru.mtc.loanservice;
+package ru.mts.loanservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

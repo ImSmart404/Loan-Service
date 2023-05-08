@@ -1,11 +1,11 @@
-package ru.mtc.loanservice.service.impl;
+package ru.mts.loanservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.mtc.loanservice.model.LoanOrder;
-import ru.mtc.loanservice.repository.LoanOrderRepository;
-import ru.mtc.loanservice.repository.TariffRepository;
-import ru.mtc.loanservice.service.LoanOrderService;
+import ru.mts.loanservice.model.LoanOrder;
+import ru.mts.loanservice.repository.LoanOrderRepository;
+import ru.mts.loanservice.repository.TariffRepository;
+import ru.mts.loanservice.service.LoanOrderService;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -42,6 +42,7 @@ public class LoanOrderServiceImpl implements LoanOrderService {
     @Override
     public List<LoanOrder> findByStatus(String status) {
         List<LoanOrder> loanOrders = loanOrderRepository.findByStatus(status);
+
         return loanOrders;
     }
 
@@ -51,7 +52,7 @@ public class LoanOrderServiceImpl implements LoanOrderService {
     }
 
     @Override
-    public String save(Long userId, Long tariffId) {
+    public LoanOrder save(Long userId, Long tariffId) {
         LoanOrder newOrder = new LoanOrder();
         newOrder.setOrderId(String.valueOf(UUID.randomUUID()));
         newOrder.setUserId(userId);
@@ -61,6 +62,6 @@ public class LoanOrderServiceImpl implements LoanOrderService {
         newOrder.setTimeUpdate(Timestamp.valueOf(LocalDateTime.now()));
         newOrder.setTimeInsert(Timestamp.valueOf(LocalDateTime.now()));
         loanOrderRepository.save(newOrder);
-        return newOrder.getOrderId();
+        return newOrder;
     }
 }

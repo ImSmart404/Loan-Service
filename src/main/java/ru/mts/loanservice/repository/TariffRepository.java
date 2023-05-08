@@ -1,9 +1,9 @@
-package ru.mtc.loanservice.repository;
+package ru.mts.loanservice.repository;
 
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.mtc.loanservice.model.Tariff;
+import ru.mts.loanservice.model.Tariff;
 import java.util.List;
 
 

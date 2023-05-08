@@ -1,4 +1,4 @@
-package ru.mtc.loanservice.model;
+package ru.mts.loanservice.model;
 
 
 import jakarta.persistence.*;

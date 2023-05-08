@@ -1,4 +1,4 @@
-package ru.mtc.loanservice;
+package ru.mts.loanservice;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import ru.mtc.loanservice.model.LoanOrder;
-import ru.mtc.loanservice.repository.LoanOrderRepository;
+import ru.mts.loanservice.model.LoanOrder;
+import ru.mts.loanservice.repository.LoanOrderRepository;
 
 @Component
 public class LoanOrderScheduler {
