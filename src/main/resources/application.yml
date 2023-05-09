@@ -9,3 +9,17 @@ spring:
     h2:
         console:
             enabled: true
+resilience4j:
+    circuitbreaker:
+            enabled: true
+            instances:
+                CircuitBreaker:
+                    register-health-indicator: true
+                    sliding-window-type: time_based
+                    sliding-window-size: 10
+                    failure-rate-threshold: 40
+                    permitted-number-of-calls-in-half-open-state: 3
+                    wait-duration-in-open-state: 5s
+                    slow-call-duration-threshold: 1s
+                    writable-stack-trace-enabled: true
+                    automatic-transition-from-open-to-half-open-enabled: true

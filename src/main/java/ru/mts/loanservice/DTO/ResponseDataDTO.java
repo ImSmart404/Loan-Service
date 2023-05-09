@@ -1,12 +1,10 @@
-package ru.mts.loanservice.model;
-
+package ru.mts.loanservice.DTO;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @lombok.Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Error {
-    String code;
-    String message;
+public class ResponseDataDTO {
+    Object data;
 }
