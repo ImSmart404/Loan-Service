@@ -13,6 +13,7 @@ import java.util.Optional;
 @Repository
 @AllArgsConstructor
 public class LoanOrderRepository  {
+    //TODO переписать через JpaRepository
     private JdbcTemplate jdbcTemplate;
     public List<LoanOrder> findByUserId(Long userId){
         String sql = "SELECT loan_order.*, tariff.type, tariff.interest_rate " +
