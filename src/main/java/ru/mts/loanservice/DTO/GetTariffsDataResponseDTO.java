@@ -8,6 +8,6 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class GetTariffsDataResponseDTO {
+public class GetTariffsDataResponseDTO implements BaseDto {
     List<Tariff> tariffs;
 }

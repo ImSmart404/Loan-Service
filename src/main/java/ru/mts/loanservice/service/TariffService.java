@@ -1,10 +1,8 @@
 package ru.mts.loanservice.service;
 
 import org.springframework.http.ResponseEntity;
-import ru.mts.loanservice.DTO.ResponseDataDTO;
-import ru.mts.loanservice.model.Tariff;
+import ru.mts.loanservice.DTO.BaseDto;
 
 public interface TariffService {
-    ResponseEntity<ResponseDataDTO> findAll();
-    Tariff findById(Long id);
+    ResponseEntity<BaseDto> findAll();
 }

@@ -1,19 +1,20 @@
 package ru.mts.loanservice;
 
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.Random;
-import java.time.LocalDateTime;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.mts.loanservice.model.LoanOrder;
 import ru.mts.loanservice.repository.LoanOrderRepository;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Random;
+
 @Component
+@AllArgsConstructor
 public class LoanOrderScheduler {
 
-    @Autowired
     private LoanOrderRepository loanOrderRepository;
 
     @Scheduled(fixedDelay = 120000)

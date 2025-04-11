@@ -1,16 +1,21 @@
 package ru.mts.loanservice.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.mts.loanservice.DTO.*;
+import ru.mts.loanservice.DTO.BaseDto;
 import ru.mts.loanservice.DTO.ErrorDTO;
-import ru.mts.loanservice.model.*;
+import ru.mts.loanservice.DTO.GetStatusOrderDataResponseDTO;
+import ru.mts.loanservice.DTO.PostOrderIdDataResponseDTO;
+import ru.mts.loanservice.exception.TariffNotFound;
+import ru.mts.loanservice.model.LoanOrder;
+import ru.mts.loanservice.model.Tariff;
 import ru.mts.loanservice.repository.LoanOrderRepository;
 import ru.mts.loanservice.repository.TariffRepository;
 import ru.mts.loanservice.service.LoanOrderService;
-import ru.mts.loanservice.service.TariffService;
+
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -19,102 +24,93 @@ import java.util.Optional;
 import java.util.UUID;
 
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class LoanOrderServiceImpl implements LoanOrderService {
 
     private final LoanOrderRepository loanOrderRepository;
     private final TariffRepository tariffRepository;
-    private final TariffService tariffService;
 
     @Override
-    public ResponseEntity<Object> findByUserId(Long userId, Long tariffId) {
-        tariffService.findById(tariffId);                                                 //если тариф не найден возвращает ошибку EmptyResultDataAccessException
+    public ResponseEntity<BaseDto> findByUserId(Long userId, Long tariffId) {
+        if (!tariffRepository.isTariffExistsById(tariffId)) {
+            //если тариф не найден возвращает ошибку TariffNotFound
+            throw new TariffNotFound("Unlikely situation: tariff not found by id");
+        }
         List<LoanOrder> loanOrders = loanOrderRepository.findByUserId(userId);
         for (LoanOrder order : loanOrders) {
-            if (order.getTariff().getId() == tariffId) {
+            if (order.getTariff().getId().equals(tariffId)) {
                 switch (order.getStatus()) {
                     case "IN_PROGRESS":
-                        ErrorDTO inProgressError = new ErrorDTO("LOAN_CONSIDERATION", "Тариф в процессе рассмотрения");
-                        ResponseErrorDTO inProgressResponse = new ResponseErrorDTO(inProgressError);
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(inProgressResponse);
+                        ErrorDTO inProgressError = new ErrorDTO(HttpStatus.BAD_REQUEST.value(), "Тариф в процессе рассмотрения");
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(inProgressError);
                     case "APPROVED":
-                        ErrorDTO approvedErrorDTO = new ErrorDTO("LOAN_ALREADY_APPROVED", "Тариф уже одобрен");
-                        ResponseErrorDTO approvedResponse = new ResponseErrorDTO(approvedErrorDTO);
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(approvedResponse);
+                        ErrorDTO approvedErrorDTO = new ErrorDTO(HttpStatus.BAD_REQUEST.value(), "Тариф уже одобрен");
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(approvedErrorDTO);
                     case "REFUSED": {
                         if (Duration.between(order.getTimeUpdate().toLocalDateTime(), LocalDateTime.now()).toMinutes() < 2) {
-                            ErrorDTO refusedError = new ErrorDTO("TRY_LATER", "Попробуйте оставить заявку позже");
-                            ResponseErrorDTO refusedResponse = new ResponseErrorDTO(refusedError);
-                            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(refusedResponse);
+                            ErrorDTO refusedError = new ErrorDTO(HttpStatus.BAD_REQUEST.value(), "Попробуйте оставить заявку позже");
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(refusedError);
                         }
                     }
                 }
             }
         }
         PostOrderIdDataResponseDTO data = new PostOrderIdDataResponseDTO(save(userId,tariffId).getOrderId());
-        ResponseDataDTO response = new ResponseDataDTO(data);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(data);
     }
 
     @Override
-    public ResponseEntity<Object> findByUserIdAndOrderId(Long userId, String orderId) {
+    public ResponseEntity<BaseDto> findByUserIdAndOrderId(Long userId, String orderId) {
         Optional<LoanOrder> loanOrder = loanOrderRepository.findByUserIdAndOrderId(userId,orderId);
         ErrorDTO error = new ErrorDTO();
-        ResponseErrorDTO responseError = new ResponseErrorDTO();
         if (loanOrder.isEmpty()) {
-            error.setCode("ORDER_NOT_FOUND");
+            error.setCode(HttpStatus.BAD_REQUEST.value());
             error.setMessage("Заявка не найдена");
         } else {
             LoanOrder order = loanOrder.get();
-            if (order.getStatus() == "IN_PROGRESS") {
-                delete(order);
-                return  ResponseEntity.status(HttpStatus.OK).body(null);
+            if (order.getStatus().equals("IN_PROGRESS")) {
+                loanOrderRepository.delete(order);
+                return ResponseEntity.status(HttpStatus.OK).body(null);
             } else {
-                error.setCode("ORDER_IMPOSSIBLE_TO_DELETE");
+                error.setCode(HttpStatus.BAD_REQUEST.value());
                 error.setMessage("Невозможно удалить заявку");
             }
         }
-        responseError.setError(error);
-        return ResponseEntity.badRequest().body(responseError);
+
+        return ResponseEntity.badRequest().body(error);
     }
 
     @Override
-    public ResponseEntity<Object> findByOrderId(String orderId) {
+    public ResponseEntity<BaseDto> findByOrderId(String orderId) {
         Optional<LoanOrder> loanOrder = loanOrderRepository.findByOrderId(orderId);
         if (loanOrder.isEmpty()){
-            ErrorDTO error = new ErrorDTO("ORDER_NOT_FOUND", "Заявка не найдена");
-            ResponseErrorDTO response = new ResponseErrorDTO(error);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            ErrorDTO error = new ErrorDTO(HttpStatus.BAD_REQUEST.value(), "Заявка не найдена");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         } else {
             GetStatusOrderDataResponseDTO data = new GetStatusOrderDataResponseDTO(loanOrder.get().getStatus());
-            ResponseDataDTO response = new ResponseDataDTO(data);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(data);
         }
-    }
-
-    @Override
-    public List<LoanOrder> findByStatus(String status) {
-        List<LoanOrder> loanOrders = loanOrderRepository.findByStatus(status);
-
-        return loanOrders;
-    }
-
-    @Override
-    public void delete(LoanOrder order) {
-        loanOrderRepository.delete(order);
     }
 
     @Override
     public LoanOrder save(Long userId, Long tariffId) {
+        Optional<Tariff> tariff = tariffRepository.findById(tariffId);
+
         LoanOrder newOrder = new LoanOrder();
         newOrder.setOrderId(String.valueOf(UUID.randomUUID()));
         newOrder.setUserId(userId);
-        newOrder.setTariff(tariffRepository.findById(tariffId));
         newOrder.setCreditRating(Math.round((Math.random() * 0.8 + 0.1) * 100.0) / 100.0);
         newOrder.setStatus("IN_PROGRESS");
         newOrder.setTimeUpdate(Timestamp.valueOf(LocalDateTime.now()));
         newOrder.setTimeInsert(Timestamp.valueOf(LocalDateTime.now()));
+        if (tariff.isPresent()) {
+            newOrder.setTariff(tariff.get());
+        } else {
+            log.error("Unlikely situation: tariff not found by id");
+            throw new TariffNotFound("Unlikely situation: tariff not found by id");
+        }
         loanOrderRepository.save(newOrder);
         return newOrder;
     }

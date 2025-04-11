@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class PostOrderIdDataResponseDTO {
+public class PostOrderIdDataResponseDTO implements BaseDto {
     String orderId;
 }

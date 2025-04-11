@@ -1,12 +1,13 @@
 package ru.mts.loanservice.DTO;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@lombok.Data
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ErrorDTO {
-    String code;
+public class ErrorDTO implements BaseDto {
+    int code;
     String message;
 }
