@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostOrderIdDataResponseDTO implements BaseDto {
-    String orderId;
+public class DeleteOrderDTO implements BaseDto {
+    String message;
 }

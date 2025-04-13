@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.mts.loanservice.DTO.BaseDto;
+import ru.mts.loanservice.DTO.DeleteOrderDTO;
 import ru.mts.loanservice.DTO.ErrorDTO;
 import ru.mts.loanservice.DTO.GetStatusOrderDataResponseDTO;
 import ru.mts.loanservice.DTO.PostOrderIdDataResponseDTO;
@@ -72,7 +73,7 @@ public class LoanOrderServiceImpl implements LoanOrderService {
             LoanOrder order = loanOrder.get();
             if (order.getStatus().equals("IN_PROGRESS")) {
                 loanOrderRepository.delete(order);
-                return ResponseEntity.status(HttpStatus.OK).body(null);
+                return ResponseEntity.status(HttpStatus.OK).body(new DeleteOrderDTO("Заявка успешно удалена"));
             } else {
                 error.setCode(HttpStatus.BAD_REQUEST.value());
                 error.setMessage("Невозможно удалить заявку");

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MvcResult;
+import ru.mts.loanservice.DTO.ErrorDTO;
 import ru.mts.loanservice.service.LoanOrderService;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -47,11 +48,11 @@ public class LoanControllerCircuitBreakerTest extends AbstractITTest {
         MvcResult mvcResult = mockMvc.perform(get(GET_STATUS_ORDER_URL_BASE)
                 .headers(requestHeaders)
                 .param("orderId", "testOrderId")
-        ).andExpect(status().isServiceUnavailable()).andReturn();
+        ).andExpect(status().isInternalServerError()).andReturn();
 
         assertNotNull(mvcResult.getResponse());
-        assertEquals("Получено слишком большое количество запросов к сервису: CircuitBreaker 'unstableApiBreaker' is OPEN and does not permit further calls",
-                mvcResult.getResponse().getContentAsString()
-        );
+        ErrorDTO errorDTO = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ErrorDTO.class);
+        assertEquals(500, errorDTO.getCode());
+        assertEquals("CircuitBreaker 'unstableApiBreaker' is OPEN and does not permit further calls", errorDTO.getMessage());
     }
 }

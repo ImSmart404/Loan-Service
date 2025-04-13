@@ -2,7 +2,6 @@ package ru.mts.loanservice.controller;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -28,19 +27,19 @@ public class LoanController {
     private final LoanOrderService loanOrderService;
 
     @GetMapping("/getTariffs")
-    @CircuitBreaker(name = "unstableApiBreaker", fallbackMethod = "fallbackMethod")
+    @CircuitBreaker(name = "unstableApiBreaker")
     public ResponseEntity<BaseDto> getTariffs() {
         return tariffService.findAll();
     }
 
     @GetMapping("/getStatusOrder")
-    @CircuitBreaker(name = "unstableApiBreaker", fallbackMethod = "fallbackMethod")
+    @CircuitBreaker(name = "unstableApiBreaker")
     public ResponseEntity<BaseDto> getStatusOrder(@RequestParam String orderId) {
         return loanOrderService.findByOrderId(orderId);
     }
 
     @PostMapping("/order")
-    @CircuitBreaker(name = "unstableApiBreaker", fallbackMethod = "fallbackMethod")
+    @CircuitBreaker(name = "unstableApiBreaker")
     public ResponseEntity<BaseDto> postOrder(@RequestBody Map<String, Long> requestMap) {
         Long tariffId = requestMap.get("tariffId");
         Long userId = requestMap.get("userId");
@@ -48,20 +47,10 @@ public class LoanController {
     }
 
     @DeleteMapping("/deleteOrder")
-    @CircuitBreaker(name = "unstableApiBreaker", fallbackMethod = "fallbackMethod")
-    public ResponseEntity<BaseDto> deleteOrder(@RequestBody Map<String, Object> request) {
-        Long userId = Long.parseLong(request.get("userId").toString());
-        String orderId = request.get("orderId").toString();
+    @CircuitBreaker(name = "unstableApiBreaker")
+    public ResponseEntity<BaseDto> deleteOrder(@RequestBody Map<String, String> request) {
+        Long userId = Long.parseLong(request.get("userId"));
+        String orderId = request.get("orderId");
         return loanOrderService.findByUserIdAndOrderId(userId, orderId);
-    }
-
-    @GetMapping
-    public String getPage() {
-        return "LoanService";
-    }
-
-    public ResponseEntity<String> fallbackMethod(Throwable t) {
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body("Получено слишком большое количество запросов к сервису: " + t.getMessage());
     }
 }
