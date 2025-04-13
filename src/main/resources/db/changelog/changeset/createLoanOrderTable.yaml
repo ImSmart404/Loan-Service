@@ -43,12 +43,12 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: time_insert
+                  name: insert_time
                   type: timestamp
                   constraints:
                     nullable: false
               - column:
-                  name: time_update
+                  name: update_time
                   type: timestamp
                   constraints:
                     nullable: false

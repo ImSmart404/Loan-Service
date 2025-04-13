@@ -5,4 +5,5 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 
 ## Unreleased ?? 1.0.0 
+- T002 - Добавлено покрытие тестов на методы `/getStatusOrder` и `/getTariffs`
 - T001 - Первая версия проекта

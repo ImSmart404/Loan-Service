@@ -14,7 +14,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class TariffServiceImpl implements TariffService {
+
     private final TariffRepository tariffRepository;
+
     @Override
     public ResponseEntity<BaseDto> findAll() {
         List<Tariff> tariffs = tariffRepository.findAll();
