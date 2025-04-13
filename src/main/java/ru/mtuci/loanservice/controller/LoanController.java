@@ -20,25 +20,25 @@ import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping(value = "/loan-service", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = "/loan-service")
 public class LoanController {
 
     private final TariffService tariffService;
     private final LoanOrderService loanOrderService;
 
-    @GetMapping("/getTariffs")
+    @GetMapping(path = "/getTariffs", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @CircuitBreaker(name = "unstableApiBreaker")
     public ResponseEntity<BaseDto> getTariffs() {
         return tariffService.findAll();
     }
 
-    @GetMapping("/getStatusOrder")
+    @GetMapping(path = "/getStatusOrder", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @CircuitBreaker(name = "unstableApiBreaker")
     public ResponseEntity<BaseDto> getStatusOrder(@RequestParam String orderId) {
         return loanOrderService.findByOrderId(orderId);
     }
 
-    @PostMapping("/order")
+    @PostMapping(path = "/order", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @CircuitBreaker(name = "unstableApiBreaker")
     public ResponseEntity<BaseDto> postOrder(@RequestBody Map<String, Long> requestMap) {
         Long tariffId = requestMap.get("tariffId");
@@ -46,11 +46,16 @@ public class LoanController {
         return loanOrderService.findByUserId(userId, tariffId);
     }
 
-    @DeleteMapping("/deleteOrder")
+    @DeleteMapping(path = "/deleteOrder", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @CircuitBreaker(name = "unstableApiBreaker")
     public ResponseEntity<BaseDto> deleteOrder(@RequestBody Map<String, String> request) {
         Long userId = Long.parseLong(request.get("userId"));
         String orderId = request.get("orderId");
         return loanOrderService.findByUserIdAndOrderId(userId, orderId);
+    }
+
+    @GetMapping
+    public String getPage(){
+        return "LoanService";
     }
 }

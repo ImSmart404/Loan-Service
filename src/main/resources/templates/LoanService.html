@@ -34,21 +34,32 @@
     <hr>
 <script>
     function getTariffs() {
-        fetch("/loan-service/getTariffs")
+        fetch("/loan-service/getTariffs", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
             .then(response => response.json())
             .then(data => {
                 document.getElementById("tariffs").innerHTML = JSON.stringify(data);
-            })
+            });
     }
 
     function getOrderStatus() {
         const orderId = document.getElementById("orderId").value;
-        fetch(`/loan-service/getStatusOrder?orderId=${orderId}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("orderStatus").innerHTML = JSON.stringify(data);
-            })
-    }
+        fetch(`/loan-service/getStatusOrder?orderId=${orderId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("orderStatus").innerHTML = JSON.stringify(data);
+        });
+}
+
 
     function postOrder() {
         const userId = document.getElementById("userId").value;

@@ -5,6 +5,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 
 ## Unreleased ?? 1.0.0 
+- T005 - Добавлена html форма
 - T004 - Добавлен Circuit Breaker, добавлена поддержка базы Postgres
 - T003 - Добавлены тесты на создание и удаление заявок
 - T002 - Добавлено покрытие тестов на методы `/getStatusOrder` и `/getTariffs`
