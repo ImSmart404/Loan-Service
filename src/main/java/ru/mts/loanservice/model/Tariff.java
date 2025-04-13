@@ -25,7 +25,7 @@ public class Tariff {
     @Column(nullable = false, unique = true)
     private String type;
 
-    @Column(name = "interest_rate",nullable = false)
+    @Column(name = "interest_rate", nullable = false)
     private String interestRate;
 
 }

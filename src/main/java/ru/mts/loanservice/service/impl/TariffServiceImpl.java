@@ -21,6 +21,6 @@ public class TariffServiceImpl implements TariffService {
     public ResponseEntity<BaseDto> findAll() {
         List<Tariff> tariffs = tariffRepository.findAll();
         GetTariffsDataResponseDTO data = new GetTariffsDataResponseDTO(tariffs);
-        return  ResponseEntity.ok(data);
+        return ResponseEntity.ok(data);
     }
 }
