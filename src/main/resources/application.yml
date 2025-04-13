@@ -6,9 +6,6 @@ spring:
         driverClassName: org.postgresql.Driver
         username: myuser
         password: mypassword
-    h2:
-        console:
-            enabled: true
 resilience4j:
     circuitbreaker:
             enabled: true
