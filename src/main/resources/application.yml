@@ -2,10 +2,10 @@ spring:
     liquibase:
         enabled: true
     datasource:
-        url: jdbc:h2:file:./db
-        driverClassName: org.h2.Driver
-        username: mikhail
-        password: 1
+        url: jdbc:postgresql://localhost:5432/mydb
+        driverClassName: org.postgresql.Driver
+        username: myuser
+        password: mypassword
     h2:
         console:
             enabled: true
@@ -13,9 +13,9 @@ resilience4j:
     circuitbreaker:
             enabled: true
             instances:
-                CircuitBreaker:
+                unstableApiBreaker:
                     register-health-indicator: true
-                    sliding-window-type: time_based
+                    sliding-window-type: count_based
                     sliding-window-size: 10
                     failure-rate-threshold: 40
                     permitted-number-of-calls-in-half-open-state: 3

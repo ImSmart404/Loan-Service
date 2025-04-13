@@ -24,7 +24,7 @@ public class LoanOrderScheduler {
         List<LoanOrder> inProgressOrders = loanOrderRepository.findByStatus("IN_PROGRESS");
         Random random = new Random();
 
-        inProgressOrders.forEach( order -> {
+        inProgressOrders.forEach(order -> {
             String status;
             if (random.nextBoolean()) {
                 status = "APPROVED";

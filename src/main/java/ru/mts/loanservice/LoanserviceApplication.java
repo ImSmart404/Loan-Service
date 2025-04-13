@@ -9,11 +9,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class LoanserviceApplication {
 
-	public static void main(String[] args) {
-		ConfigurableApplicationContext context = SpringApplication.run(LoanserviceApplication.class, args);
-		LoanOrderScheduler scheduler = context.getBean(LoanOrderScheduler.class);
-		scheduler.updateInProgressOrders();
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(LoanserviceApplication.class, args);
+        LoanOrderScheduler scheduler = context.getBean(LoanOrderScheduler.class);
+        scheduler.updateInProgressOrders();
 
-	}
+    }
 
 }

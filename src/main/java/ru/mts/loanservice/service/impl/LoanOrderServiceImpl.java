@@ -57,13 +57,13 @@ public class LoanOrderServiceImpl implements LoanOrderService {
                 }
             }
         }
-        PostOrderIdDataResponseDTO data = new PostOrderIdDataResponseDTO(save(userId,tariffId).getOrderId());
+        PostOrderIdDataResponseDTO data = new PostOrderIdDataResponseDTO(save(userId, tariffId).getOrderId());
         return ResponseEntity.ok(data);
     }
 
     @Override
     public ResponseEntity<BaseDto> findByUserIdAndOrderId(Long userId, String orderId) {
-        Optional<LoanOrder> loanOrder = loanOrderRepository.findByUserIdAndOrderId(userId,orderId);
+        Optional<LoanOrder> loanOrder = loanOrderRepository.findByUserIdAndOrderId(userId, orderId);
         ErrorDTO error = new ErrorDTO();
         if (loanOrder.isEmpty()) {
             error.setCode(HttpStatus.BAD_REQUEST.value());
@@ -85,7 +85,7 @@ public class LoanOrderServiceImpl implements LoanOrderService {
     @Override
     public ResponseEntity<BaseDto> findByOrderId(String orderId) {
         Optional<LoanOrder> loanOrder = loanOrderRepository.findByOrderId(orderId);
-        if (loanOrder.isEmpty()){
+        if (loanOrder.isEmpty()) {
             ErrorDTO error = new ErrorDTO(HttpStatus.BAD_REQUEST.value(), "Заявка не найдена");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         } else {
