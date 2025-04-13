@@ -1,5 +1,7 @@
 # Loan-Service
-MTS Fintech Graduation Project
+
+## Graduation Project
+
 Для запуска проекта необходимо:
-Установить H2 базу данных;
+Поднять базу Postgres, настроенный вариант базы в docker-compose.yml
 После запуска приложения в среде разработки, для отображения интерфейса, необходимо перейти по адресу http://localhost:8080/loan-service;
