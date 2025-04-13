@@ -16,9 +16,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(Exception ex) {
 
-        ErrorDTO errorDTO = new ErrorDTO(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        ErrorDTO errorDTO = new ErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
         log.error("Exception: {}", ex, ex);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

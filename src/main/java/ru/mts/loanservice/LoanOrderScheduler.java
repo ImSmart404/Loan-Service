@@ -1,5 +1,6 @@
 package ru.mts.loanservice;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -18,18 +19,19 @@ public class LoanOrderScheduler {
     private LoanOrderRepository loanOrderRepository;
 
     @Scheduled(fixedDelay = 120000)
+    @Transactional
     public void updateInProgressOrders() {
         List<LoanOrder> inProgressOrders = loanOrderRepository.findByStatus("IN_PROGRESS");
         Random random = new Random();
 
-        for (LoanOrder order : inProgressOrders) {
+        inProgressOrders.forEach( order -> {
+            String status;
             if (random.nextBoolean()) {
-                order.setStatus("APPROVED");
+                status = "APPROVED";
             } else {
-                order.setStatus("REFUSED");
+                status = "REFUSED";
             }
-            order.setTimeUpdate(Timestamp.valueOf(LocalDateTime.now()));
-            loanOrderRepository.update(order);
-        }
+            loanOrderRepository.updateTimeAndStatus(order.getId(), Timestamp.valueOf(LocalDateTime.now()), status);
+        });
     }
 }

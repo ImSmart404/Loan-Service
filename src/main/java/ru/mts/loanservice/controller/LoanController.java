@@ -1,6 +1,7 @@
 package ru.mts.loanservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,7 +19,7 @@ import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/loan-service")
+@RequestMapping(value = "/loan-service", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class LoanController {
 
     private final TariffService tariffService;
@@ -31,7 +32,7 @@ public class LoanController {
 
     @GetMapping("/getStatusOrder")
     public ResponseEntity<BaseDto> getStatusOrder(@RequestParam String orderId) {
-        return  loanOrderService.findByOrderId(orderId);
+        return loanOrderService.findByOrderId(orderId);
     }
     @PostMapping("/order")
     public ResponseEntity<BaseDto> postOrder(@RequestBody Map<String,Long> requestMap)  {

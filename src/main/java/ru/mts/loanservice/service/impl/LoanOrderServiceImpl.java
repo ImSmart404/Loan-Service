@@ -49,7 +49,7 @@ public class LoanOrderServiceImpl implements LoanOrderService {
                         ErrorDTO approvedErrorDTO = new ErrorDTO(HttpStatus.BAD_REQUEST.value(), "Тариф уже одобрен");
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(approvedErrorDTO);
                     case "REFUSED": {
-                        if (Duration.between(order.getTimeUpdate().toLocalDateTime(), LocalDateTime.now()).toMinutes() < 2) {
+                        if (Duration.between(order.getUpdateTime().toLocalDateTime(), LocalDateTime.now()).toMinutes() < 2) {
                             ErrorDTO refusedError = new ErrorDTO(HttpStatus.BAD_REQUEST.value(), "Попробуйте оставить заявку позже");
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(refusedError);
                         }
@@ -103,8 +103,8 @@ public class LoanOrderServiceImpl implements LoanOrderService {
         newOrder.setUserId(userId);
         newOrder.setCreditRating(Math.round((Math.random() * 0.8 + 0.1) * 100.0) / 100.0);
         newOrder.setStatus("IN_PROGRESS");
-        newOrder.setTimeUpdate(Timestamp.valueOf(LocalDateTime.now()));
-        newOrder.setTimeInsert(Timestamp.valueOf(LocalDateTime.now()));
+        newOrder.setUpdateTime(Timestamp.valueOf(LocalDateTime.now()));
+        newOrder.setInsertTime(Timestamp.valueOf(LocalDateTime.now()));
         if (tariff.isPresent()) {
             newOrder.setTariff(tariff.get());
         } else {

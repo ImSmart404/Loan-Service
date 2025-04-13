@@ -41,9 +41,9 @@ public class LoanOrder {
     @Column(name = "status", nullable = false)
     private String status;
 
-    @Column(name = "time_insert", nullable = false)
-    private Timestamp timeInsert;
+    @Column(name = "insert_time", nullable = false)
+    private Timestamp insertTime;
 
-    @Column(name = "time_update", nullable = false)
-    private Timestamp timeUpdate;
+    @Column(name = "update_time", nullable = false)
+    private Timestamp updateTime;
 }
